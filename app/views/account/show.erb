@@ -1,0 +1,98 @@
+<div class="container">
+  <section class="page-header">
+    <h1>Account Settings</h1>
+  </section>
+  <article>
+    <h3>API Key</h3>
+    <p>View or reset your Exercism API key <a href="/account/key">here</a>.</p>
+
+    <hr>
+
+    <h3> Private share url </h3>
+    <p>Your profile page on Exercism is only visible to other Exercism users by default, who can only see your solutions if they've done the exercises themselves.</p>
+    <p> By creating a "private share" url, you can share your complete profile with specific people, and they will be able to see all of your solutions, provided you share the link with them. And the good thing is that they don't need to be an Exercism user themselves.</p>
+    <% if profile.has_share_key? %>
+      <p> Currently you have shared your profile. Here's the <a href="<%= "/profiles/#{profile.username}/#{profile.user.share_key}" %>"> url</a>.</p>
+      <% action = "/account/share-key/unset" %>
+      <% value = "Disable private share" %>
+    <% else %>
+      <% action = "/account/share-key/set" %>
+      <% value = "Enable private share" %>
+    <% end %>
+    <form action="<%= action %>" method="post">
+      <input type="hidden" name="_method" value="put">
+      <input type="submit" value="<%= value %>" class="btn btn-danger">
+    </form>
+
+    <hr>
+
+    <h3>Avatar</h3>
+    <p>You can update your <%= gravatar_tag current_user.avatar_url %> avatar on
+    <a href="https://github.com/settings/profile">GitHub</a>.</p>
+
+    <hr>
+
+    <h3>Teams</h3>
+    <p>By setting up a team you will be able to view a separate activity stream for your team members' submissions.</p>
+    <% if profile.has_teams? %>
+      <ul class="nav nav-stacked nav-bordered" style="max-width: 400px">
+        <% profile.teams.each do |team| %>
+          <li>
+            <% if team.member_invites.include?(profile.user) %>
+              <ul class="list-inline" style="padding:10px 20px;">
+                <li>
+                  <form action="<%= "/teams/#{team.slug}/invitation/accept" %>" method="post">
+                    <input type="submit" name="update" value="Accept" class="btn btn-xs btn-success"/>
+                  </form>
+                </li>
+                <li>
+                  <form action="<%= "/teams/#{team.slug}/invitation/refuse" %>" method="post">
+                    <input type="submit" name="update" value="Decline" class="btn btn-xs btn-danger"/>
+                  </form>
+                </li>
+                <li style="padding-left: 0;"><%= team.name %></li>
+              </ul>
+            <% else %>
+              <a style="float: left; width: 70%;" href="/teams/<%= team.slug %>"><%= team.name %></a>
+              <% if team.all_members.any? {|member| member.username == current_user.username} %>
+                <form action="<%= "/teams/#{team.slug}/leave" %>" method="post" class="team-leave-form" style="float: right; padding: 10px;">
+                  <input type="hidden" name="_method" value="put" />
+                  <input type="submit" name="update" value="Leave team" class="btn btn-xs btn-danger"
+                  <% if team.managed_by?(current_user) %>
+                    data-toggle="tooltip" data-placement="top"
+                    title="If you leave, you will stay on as manager but your exercises will no longer show up."
+                  <% end %>
+                  />
+                </form>
+              <% end %>
+              <span style="display: block; clear: both;"></span>
+            <% end %>
+          </li>
+        <% end %>
+      </ul>
+    <% end %>
+    <p/><br/>
+    <a href="/teams/new" class="btn btn-primary">Create a new team</a>
+
+    <hr>
+
+    <h3>Track Mentor</h3>
+    <% if profile.is_track_mentor? %>
+    <div>
+      <h4>Mentored Tracks</h4>
+      <% profile.mentored_tracks.each do |track| %>
+        <span class="label label-default"><%= track %></span>
+      <% end %>
+    </div>
+
+    <br/>
+
+    <div>
+      <h4>Track Mentor Invitation</h4>
+      <%= erb :'account/_track_mentor_invite', locals: { profile: profile } %>
+    <% else %>
+      <p>Want to be a Track Mentor? Working on exercises and giving great feedback is the best way to get noticed!</p>
+    <% end %>
+    </div>
+  </article>
+</div>

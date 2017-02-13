@@ -1,0 +1,169 @@
+<div class="container">
+  <br>
+  <%= erb :"teams/_tabs", locals: {active: active, team: team} %>
+
+  <div id="team_settings">
+    <h3>Settings</h3>
+    <form accept-charset="UTF-8" action="<%= "/teams/#{team.slug}" %>" method="post">
+      <input type="hidden" name="_method" value="put" />
+      <div class="row">
+        <div class="form-group col-sm-8">
+          <label for="team_public">Public (should people be able to find your team?)</label>
+          <div class="controls">
+            <input type="checkbox" id="team_public" name="team[public]" value="1" <%= 'checked' if team.public %>/>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-group col-sm-4">
+          <label for="team_slug">Slug (in URL)</label>
+          <div class="controls">
+            <input type="text" name="team[slug]" id="team_slug" placeholder="e.g. gocowboys" value="<%= team.slug %>" class="form-control" />
+          </div>
+        </div>
+
+        <div class="form-group col-sm-4">
+          <label for="team_name">Name (optional, defaults to slug)</label>
+          <div class="controls">
+            <input type="text" name="team[name]" id="team_name" placeholder="e.g. Go Cowboys" value="<%= team.name %>" class="form-control" />
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-group col-sm-8">
+          <label for="team_slug">Description</label>
+          <div class="controls">
+            <textarea name="team[description]" id="team_description" class="form-control" placeholder="e.g., People interested in learning new programming languages"><%= team.description %></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-group col-sm-8">
+          <label for="team_slug">Tags</label>
+          <div class="controls">
+            <textarea name="team[tags]" id="team_tags" class="form-control" placeholder="Comma separated values, e.g., ruby, exercism, learning"><%= team.all_tags %></textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="row">
+        <button type="submit" class="btn btn-primary" style="margin-left: 15px">Update</button>
+      </div>
+    </form><br/>
+
+    <div id="danger_buttons" class="row">
+      <div class="col-md-2" style="margin: 0 10px 10px 0">
+        <form accept-charset="UTF-8" action="/teams/<%= team.slug %>" method="post">
+          <input name="_method" type="hidden" value="delete" />
+          <button type="submit" class="btn btn-primary btn-danger">Delete Team</button>
+        </form>
+      </div>
+      <div class="col-md-2" style="margin: 0 10px 10px 0">
+        <% if team.managers.size > 1 %>
+          <form accept-charset="UTF-8" action="/teams/<%= team.slug %>/disown" method="post">
+            <button type="submit" class="btn btn-primary btn-danger">Resign as Manager</button>
+          </form>
+        <% end %>
+      </div>
+    </div>
+  </div>
+
+<hr>
+
+  <div id="managers">
+    <h3>Managers</h3>
+    <form accept-charset="UTF-8" action="<%= "/teams/#{team.slug}/managers" %>" method="post">
+      <div class="row">
+        <div class="form-group col-sm-4">
+          <label class="control-label" for="username">Username</label>
+          <div class="controls">
+            <input type="text" name="username" class="form-control" />
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary">Add manager</button>
+    </form>
+
+    <% team.managers.each do |manager| %>
+      <% if team.managers.count == 1 && team.managers.first == current_user %>
+        <button type="button" class="disabled btn btn-xs btn-danger manager_delete" data-toggle="tooltip" data-placement="bottom" title="You must add another manager before you can remove yourself as the last manager." style="margin: 10px 10px 10px 0">Remove</button>
+      <% else %>
+        <form accept-charset="UTF-8" action="/teams/<%= team.slug %>/managers" method="post">
+          <input type="hidden" name="_method" value="delete" />
+          <input type="hidden" name="username" value="<%= manager.username %>" />
+          <button type="submit" class="btn btn-xs btn-danger manager_delete" data-username="<%= manager.username %>" style="margin: 10px 10px 10px 0">Remove</button>
+        </form>
+      <% end %>
+
+      <%= gravatar_tag manager.avatar_url, size: 20 %>
+      <a href="/<%= manager.username %>"><%= manager.username %></a>
+    <% end %>
+  </div>
+
+<hr>
+
+  <div id="members">
+    <h3>Members</h3>
+    <form accept-charset="UTF-8" action="<%= "/teams/#{team.slug}/invitations" %>" method="post">
+      <div class="row">
+        <div class="control-group col-md-8">
+          <label  class="control-label" for="usernames">Usernames (comma-separated list)</label>
+          <div class="controls">
+            <textarea name="usernames" id="usernames" class="form-control" placeholder="e.g. kytrinyx, seeflanigan, rubysolo, theotherzach"></textarea>
+          </div>
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="margin-top: 15px">Invite</button>
+    </form>
+
+    <br/>
+
+    <div class="row">
+      <% team.members.each do |member| %>
+        <div class="col-sm-3">
+          <a href="#" data-username="<%= member.username %>" data-team="<%= team.slug %>"
+          class="btn btn-xs btn-danger member_delete" style="margin: 10px 10px 10px 0">X</a>
+          <%= gravatar_tag member.avatar_url, size: 20 %>
+          <a href="/<%= member.username %>"><%= member.username %></a>
+        </div>
+      <% end %>
+    </div>
+
+    <% if team.member_invites.exists? %>
+      <div class="row">
+        <h4>Invited members</h4>
+        <% team.member_invites.each do |member| %>
+          <div class="col-sm-3">
+            <a href="#" data-username="<%= member.username %>" data-team="<%= team.slug %>"
+            class="btn btn-xs btn-danger invite_dismiss" style="margin: 10px 10px 10px 0">X</a>
+            <%= gravatar_tag member.avatar_url, size: 20 %>
+            <a href="/<%= member.username %>"><%= member.username %></a>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if team.membership_requests.exists? %>
+      <div class="row">
+        <h4>Membership requests</h4>
+        <% team.membership_requests.each do |req| %>
+          <div class="col-sm-4">
+            <form action="<%= "/teams/#{team.slug}/request/#{req.user.username}/accept" %>" method="post" class="inline">
+              <input type="submit" name="update" value="Accept" class="btn btn-xs btn-success"/>
+            </form>
+
+            <form action="<%= "/teams/#{team.slug}/request/#{req.user.username}/refuse" %>" method="post" class="inline">
+              <input type="submit" name="update" value="Decline" class="btn btn-xs btn-danger" style="margin-right: 10px;"/>
+            </form>
+
+            <%= gravatar_tag req.user.avatar_url, size: 20 %>
+            <a href="/<%= req.user.username %>"><%= req.user.username %></a>
+          </div>
+        <% end %>
+      </div>
+    <% end %>
+  </div>
+</div>

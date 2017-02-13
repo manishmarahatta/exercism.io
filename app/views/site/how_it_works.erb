@@ -1,0 +1,37 @@
+<div class="container" id="how-it-works">
+  <section class="page-header">
+    <h1>How it Works: For Experienced Developers</h1>
+  </section>
+  <section>
+
+  <div class="row">
+    <div class="col-md-8">
+      <%= md(docs.local_remote) %>
+    </div>
+    <div class="col-md-4 hints">
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <h2>Getting Started</h2>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-8">
+      <%= md(docs.getting_started) %>
+
+      <% if current_user.guest? %>
+      <p>
+        <a href="/login?return_path=/how-it-works" class="btn btn-lg btn-block cta-btn">Sign Up via GitHub</a>
+      </p>
+      <% end %>
+    </div>
+    <div class="col-md-4 hints">
+      <p>All of Exercism, including the CLI, is open source. The <a href="https://github.com/exercism/cli" target="_blank">CLI codebase</a> is in Go, and it's not too big&mdash;pretty easy to read through if you're worried about executing code on your computer.</p>
+    </div>
+  </div>
+  </section>
+</div>
+

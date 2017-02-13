@@ -1,0 +1,133 @@
+<div class="container">
+  <section class="page-header">
+    <h1>Notifications (<%= inbox.count %>)</h1>
+  </section>
+
+  <% unless inbox.has_notifications? %>
+    <div class="row">
+      <div class="col-xs-8">
+        <p>Notifications tell you about new comments or submissions in conversations that you are participating in, activity from team members, team invitations, and notifications about feature changes on the site.</p>
+        <p>Currently, you cannot configure your notifications.</p>
+      </div>
+    </div>
+  <% end %>
+
+  <div class="row">
+    <div class="col-xs-8">
+      <% if inbox.has_team_membership_invites? %>
+        <ul style="list-style-type: none; margin: 0;" class="invite-notifications">
+          <% inbox.team_membership_invites.each do |invite| %>
+          <li class="alert-row">
+            <span style="padding-right: 15px;" class="fa fa-bell-o alert-icon"></span>
+            <% if invite.inviter.present? %>
+              <%= gravatar_tag invite.inviter.avatar_url, size: 20 %>
+              <a href="<%= invite.inviter.username %>"><%= invite.inviter.username %></a> would like you to join the team <%= invite.team.name %>.
+            <% else %>
+              You are invited to join the team <%= invite.team.name %>.
+            <% end %>
+            <form action="<%= "/teams/#{invite.team.slug}/invitation/refuse" %>" method="post" class="inline">
+              <input type="submit" name="update" value="Decline" class="btn btn-xs btn-danger pull-right"/>
+            </form>
+
+            <form action="<%= "/teams/#{invite.team.slug}/invitation/accept" %>" method="post" class="inline">
+              <input type="submit" name="update" value="Accept" class="btn btn-xs btn-success pull-right" style="margin-right: 5px"/>
+            </form>
+          </li>
+          <% end %>
+        </ul>
+      <% end %>
+
+      <% if inbox.has_team_membership_requests_to_review? %>
+        <ul style="list-style-type: none; margin: 0;" class="request-notifications">
+          <% inbox.team_membership_requests_to_review.each do |request| %>
+          <li class="alert-row">
+            <span style="padding-right: 15px;" class="fa fa-bell-o alert-icon"></span>
+            <%= gravatar_tag request.user.avatar_url, size: 20 %>
+            <a href="<%= request.user.username %>"><%= request.user.username %></a> wants to join team <%= request.team.name %>.
+
+            <form action="<%= "/teams/#{request.team.slug}/request/#{request.user.username}/refuse" %>" method="post" class="inline">
+              <input type="submit" name="update" value="Decline" class="btn btn-xs btn-danger pull-right"/>
+            </form>
+
+            <form action="<%= "/teams/#{request.team.slug}/request/#{request.user.username}/accept" %>" method="post" class="inline">
+              <input type="submit" name="update" value="Accept" class="btn btn-xs btn-success pull-right" style="margin-right: 5px;"/>
+            </form>
+          </li>
+          <% end %>
+        </ul>
+      <% end %>
+
+      <ul style="list-style-type: none; margin: 0;">
+        <% inbox.notifications.each do |notification| %>
+          <li class="alert-row">
+            <span style="padding-right: 15px;" class="fa fa-<%= notification.icon %>"></span>
+
+            <% if notification.action == 'like' %>
+              <a href="/<%= notification.actor.username %>">
+                <%= gravatar_tag notification.actor.avatar_url, size: 20 %>
+                <%= notification.actor.username %>
+              </a>
+              liked your
+              <a href="<%= notification.url %>">
+                <%= notification.iteration.problem.name %> in <%= notification.iteration.problem.language %>
+              </a>
+            <% end %>
+
+            <% if notification.action == 'mention' %>
+              <%= gravatar_tag notification.actor.avatar_url, size: 20 %>
+              <%= notification.actor.username %>
+              mentioned you
+              <%= ago(notification.created_at) %>
+
+              &middot;
+
+              <%= notification.whose %>
+              <a href="<%= notification.url %>">
+                <%= notification.iteration.problem.name %> in <%= notification.iteration.problem.language %>
+              </a>
+            <% end %>
+
+            <% if notification.action == 'comment' %>
+              <%= gravatar_tag notification.actor.avatar_url, size: 20 %>
+              <%= notification.actor.username %>
+              commented
+              <%= ago(notification.created_at) %>
+
+              &middot;
+
+              <%= notification.whose %>
+              <a href="<%= notification.url %>">
+                <%= notification.iteration.problem.name %> in <%= notification.iteration.problem.language %>
+                (#<%= notification.iteration.version %>)
+              </a>
+            <% end %>
+
+            <% if notification.action == 'iteration' %>
+              <%= gravatar_tag notification.actor.avatar_url, size: 20 %>
+              <%= notification.actor.username %>
+              submitted
+              <a href="<%= notification.url %>">
+                <%= notification.iteration.problem.name %>
+                in
+                <%= notification.iteration.problem.language %>
+                (#<%= notification.iteration.version %>)
+              </a>
+              <%= ago(notification.created_at) %>
+            <% end %>
+
+            <span style="float: right;">
+              <%= track_icon(notification.iteration.track_id, 20) %>
+            </span>
+          </li>
+        <% end %>
+      </ul>
+    </div>
+   <% if inbox.has_notifications? %>
+     <div class="col-xs-4 text-center">
+       <form action="/notifications/read" method='POST'>
+         <button type="submit" class="btn btn-danger" name="mark-all-read">Mark all as read</button>
+       </form>
+     </div>
+    <% end %>
+  </div>
+</div>

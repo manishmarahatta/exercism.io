@@ -1,0 +1,15 @@
+<div class="container">
+  <section class="page-header">
+    <h1>Help</h1>
+  </section>
+  <section>
+    <%= md(docs.contact) %>
+
+    <h2>Troubleshooting</h2>
+    <%= md(docs.executable) %>
+    <%= md(docs.dns) %>
+    <%= md(docs.firewall) %>
+
+    <%= erb :"site/_add_more", locals: { page: "help" } %>
+  </section>
+</div>

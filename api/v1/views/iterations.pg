@@ -1,0 +1,5 @@
+collection assignments: submissions do |submission|
+  attributes :slug
+  node track: submission.track_id
+  node files: submission.solution
+end

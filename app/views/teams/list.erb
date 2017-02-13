@@ -1,0 +1,65 @@
+<div class="container">
+  <div class="clearfix">
+    <h3 class="pull-left">Search for public teams</h3>
+    <a href="/teams/new" class="btn btn-primary pull-right create-team-btn">Create your own team</a>
+  </div>
+
+  <div class="teams-search">
+    <form accept-charset="UTF-8" action="<%= "/teams" %>" method="get">
+      <div class="row">
+        <div class="input-group col-md-12">
+          <input type="text" name="q" value="<%= tag %>" class="form-control input-lg" placeholder="Search tags" data-search="tags"/>
+
+          <span class="input-group-btn">
+            <button class="btn btn-info btn-lg" type="submit">
+              <i class="fa fa-search"></i>
+            </button>
+          </span>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  <div>
+    <ul class="teams-result-list">
+      <% if tag.present? && teams.empty?%>
+        <li class="team-info">
+          <div class="row">
+            <h3>No teams could be found!</h3>
+          </div>
+        </li>
+      <% end %>
+
+      <% teams.each do |team| %>
+        <li class="team-info">
+          <div class="row">
+            <div class="list-group-item" data-team-slug="<%= team.slug %>">
+              <%= erb :"teams/_membership_status", locals: {
+                  team: team,
+                  member_of: member_of,
+                  team_invites: team_invites,
+                  team_requests: team_requests,
+                  team_requests_denied: team_requests_denied
+                }
+              %>
+
+              <h3><%= h(team.name) %> (<%= team.members_size %> <%= 'member'.pluralize(team.members_size) %>)</h3>
+
+              <% if team.description.present? %>
+                <h4><%= team.description %></h4>
+              <% end %>
+
+              <p> Tags: <%= team.all_tags %> </p>
+            </div>
+          </div>
+        </li>
+      <% end %>
+    </ul>
+  </div>
+
+  <% if teams.present? %>
+    <div class="pagination">
+      <%= will_paginate teams, renderer: BootstrapPagination::Sinatra %>
+    </div>
+  <% end %>
+</div>

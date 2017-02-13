@@ -1,0 +1,49 @@
+<div id="current_submission" class="code col-md-6">
+  <div class="theiaStickySidebar">
+    <% submission.solution.each_with_index do |(filename, code), idx| %>
+    <div class="btn-toolbar submission-code-header">
+      <div class="submission-code-filename">
+        <h4><%= filename %></h4>
+      </div>
+    <div class="submission-code-actions btn-group pull-right">
+      <a
+        class="btn btn-default hidden-xs"
+        data-action="enlarge"
+        data-new-class="col-md-12"
+        data-old-class="col-md-6">
+        <i class="fa fa-expand"></i>
+      </a>
+      <a
+        style="display: none;"
+        class="btn btn-default"
+        data-action="shrink"
+        data-new-class="col-md-6"
+        data-old-class="col-md-12">
+        <i class="fa fa-compress"></i>
+      </a>
+      <a
+        class="btn btn-default copy-code"
+        href="#"
+        data-target="#submission-code-<%= idx %>">
+        <i class="fa fa-clipboard"></i>
+      </a>
+    </div>
+
+    <div class="clearfix"></div>
+    </div>
+
+    <div class="submission-code-body">
+      <%= syntax(code, submission.track_id) %>
+    </div>
+
+      <div id="submission-code-<%= idx %>" class="hidden" ng-non-bindable><%= h code %></div>
+    <% end %>
+
+    <div class="submission-likes">
+      <%= like_submission_button(submission, current_user) %>
+      <% if submission.liked? %>
+        <p><%= these_people_like_it(submission.liked_by) %></p>
+      <% end %>
+    </div>
+  </div>
+</div>

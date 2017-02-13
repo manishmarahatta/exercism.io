@@ -1,0 +1,22 @@
+{
+  "go": [
+    {
+      "slug": "one",
+      "state": "archived"
+    },
+    {
+      "slug": "three",
+      "state": "active"
+    },
+    {
+      "slug": "two",
+      "state": "active"
+    }
+  ],
+  "ruby": [
+    {
+      "slug": "one",
+      "state": "active"
+    }
+  ]
+}
